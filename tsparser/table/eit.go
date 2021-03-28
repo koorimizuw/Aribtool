@@ -50,6 +50,9 @@ type EventSection struct {
 }
 
 type Event struct {
+	OriginalNetworkId     int
+	TransportStreamId     int
+	ServiceId             int
 	EventId               int
 	StartTime             time.Time
 	Duration              int

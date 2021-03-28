@@ -19,19 +19,15 @@ const (
 	ScheduleEventSection = "ScheduleEventSection"
 )
 
-func ParseEventSection(sid int, sectionList ...[]byte) (int, int, []table.Event) {
-	var onid int
-	var tsid int
+func ParseEventSection(sectionList ...[]byte) []table.Event {
 	var events []table.Event
-	for i, v := range table.ParseEventSection(sectionList...) {
-		if i == 0 {
-			onid = v.OriginalNetworkId
-			tsid = v.TransportStreamId
+	for _, v := range table.ParseEventSection(sectionList...) {
+		for _, e := range v.Event {
+			e.OriginalNetworkId = v.OriginalNetworkId
+			e.TransportStreamId = v.TransportStreamId
+			e.ServiceId = v.ServiceId
+			events = append(events, e)
 		}
-		if v.ServiceId != sid {
-			continue
-		}
-		events = append(events, v.Event...)
 	}
-	return onid, tsid, events
+	return events
 }

@@ -7,10 +7,13 @@ import (
 )
 
 func dump(data []EventData) {
-	filename := fmt.Sprintf("%d-%d-%d", data[0].Onid, data[0].Tsid, data[0].Sid)
+	if len(data) == 0 {
+		panic("No event data.")
+	}
+
+	filename := fmt.Sprintf("%d", data[0].Onid)
 	f, _ := os.Create(filename + ".json")
 	defer f.Close()
 
-	//fmt.Println(data)
 	json.NewEncoder(f).Encode(data)
 }

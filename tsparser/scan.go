@@ -8,7 +8,7 @@ import (
 
 type TsPacket []byte
 
-func Scan(path string, section string) [][]byte {
+func Scan(path string, pid int, tidRange TableIdRange) [][]byte {
 	fp, _ := os.Open(path)
 	defer fp.Close()
 
@@ -28,7 +28,7 @@ func Scan(path string, section string) [][]byte {
 		header := ParseTsHeader(packet)
 
 		switch {
-		case header.PID != PidMap[section]:
+		case header.PID != pid:
 			continue
 		case !header.HasPayload():
 			continue
@@ -64,7 +64,7 @@ func Scan(path string, section string) [][]byte {
 		payload = payload[pointer+1:]
 
 		tid = payload[0]
-		if tid < TableIdMap[section].Start || tid > TableIdMap[section].End {
+		if tid < tidRange.Start || tid > tidRange.End {
 			continue
 		}
 

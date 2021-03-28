@@ -17,17 +17,21 @@ type EventData struct {
 	Genre          int    `json:"ganre"`
 }
 
-func DumpEpg(path string, sid int) {
-	eventSectionList := tsparser.Scan(path, tsparser.ScheduleEventSection)
-	onid, tsid, events := tsparser.ParseEventSection(sid, eventSectionList...)
+func DumpEpg(path string) {
+	eventPid := tsparser.PidMap[tsparser.ScheduleEventSection]
+	eventTidRange := tsparser.TableIdMap[tsparser.ScheduleEventSection]
 
+	eventSectionList := tsparser.Scan(path, eventPid, eventTidRange)
+	events := tsparser.ParseEventSection(eventSectionList...)
+
+	var eventData []EventData
 	eventMap := make(map[int]*EventData)
 	for _, v := range events {
 		if _, ok := eventMap[v.EventId]; !ok {
 			eventMap[v.EventId] = &EventData{
-				Onid:      onid,
-				Tsid:      tsid,
-				Sid:       sid,
+				Onid:      v.OriginalNetworkId,
+				Tsid:      v.TransportStreamId,
+				Sid:       v.ServiceId,
 				Eid:       v.EventId,
 				StartTime: v.StartTime.Format("2006/01/02 15:04:05"),
 				Duration:  v.Duration,
@@ -51,7 +55,6 @@ func DumpEpg(path string, sid int) {
 		}
 	}
 
-	var eventData []EventData
 	for _, v := range eventMap {
 		eventData = append(eventData, *v)
 	}
