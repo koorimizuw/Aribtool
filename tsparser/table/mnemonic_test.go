@@ -1,10 +1,6 @@
 package table
 
-import (
-	"fmt"
-	"testing"
-)
-
+/*
 func TestUimsbf(t *testing.T) {
 	//s := Section{0x47, 0x40, 0x12, 0x19}
 	s := Section{0x51, 0xf6, 0xf9, 0x04, 0x28}
@@ -12,3 +8,4 @@ func TestUimsbf(t *testing.T) {
 	out := s.uimsbf(24, 8)
 	fmt.Println(out.toNumber())
 }
+*/

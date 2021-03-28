@@ -1,10 +1,9 @@
 package table
 
-import "fmt"
-
 type Descriptor struct {
-	ShortEventDescriptor    ShortEventDescriptor    // 短形式イベント記述子
-	ExtendedEventDescriptor ExtendedEventDescriptor // 拡張形式イベント記述子
+	ShortEventDescriptor    []ShortEventDescriptor    // 短形式イベント記述子
+	ExtendedEventDescriptor []ExtendedEventDescriptor // 拡張形式イベント記述子
+	DataContentDescriptor   []DataContentDescriptor   // データコンテンツ記述子
 }
 
 func parseDescriptor(s Section) Descriptor {
@@ -15,11 +14,13 @@ func parseDescriptor(s Section) Descriptor {
 
 		switch tag {
 		case 0x4d: // 短形式イベント記述子
-			desc.ShortEventDescriptor = parseShortEventDescriptor(s[:2+length])
+			desc.ShortEventDescriptor = append(desc.ShortEventDescriptor, parseShortEventDescriptor(s[:2+length]))
 		case 0x4e: // 拡張形式イベント記述子
-			desc.ExtendedEventDescriptor = parseExtendedEventDescriptor(s[:2+length])
+			desc.ExtendedEventDescriptor = append(desc.ExtendedEventDescriptor, parseExtendedEventDescriptor(s[:2+length]))
+		case 0xc7:
+			desc.DataContentDescriptor = append(desc.DataContentDescriptor, parseDataContentDescriptor(s[:2+length]))
 		default:
-			fmt.Println(tag)
+			//fmt.Println(tag)
 		}
 		s = s[2+length:]
 	}
@@ -137,7 +138,42 @@ Local Time Offset Descriptor
 Audio Component Descriptor
 Target Region Descriptor
 Hyperlink Descriptor
-Data Content Descriptor
+*/
+
+type DataContentDescriptor struct {
+	DescriptorTag      byte
+	DescriptorLength   int
+	DataComponentId    int
+	EntryComponent     byte
+	SelectorLength     int
+	SelectorByte       []byte
+	NumOfComponentRef  int
+	ComponentRef       []byte
+	ISO639LanguageCode string
+	TextLength         int
+	TextChar           string
+}
+
+func parseDataContentDescriptor(s Section) DataContentDescriptor {
+	selectorLength := s.uimsbf(40, 8).toNumber()
+	numOfComponentRef := s.uimsbf(48+selectorLength*8, 8).toNumber()
+	textLength := s.uimsbf(80+selectorLength*8+numOfComponentRef*8, 8).toNumber()
+	return DataContentDescriptor{
+		DescriptorTag:      s.uimsbf(0, 8).toByte(),
+		DescriptorLength:   s.uimsbf(8, 8).toNumber(),
+		DataComponentId:    s.uimsbf(16, 16).toNumber(),
+		EntryComponent:     s.uimsbf(32, 8).toByte(),
+		SelectorLength:     selectorLength,
+		SelectorByte:       s.uimsbf(48, selectorLength*8),
+		NumOfComponentRef:  numOfComponentRef,
+		ComponentRef:       s.uimsbf(56+selectorLength*8, numOfComponentRef*8),
+		ISO639LanguageCode: s.bslbf(56+selectorLength*8+numOfComponentRef*8, 24).toLanguageCode(),
+		TextLength:         textLength,
+		TextChar:           s.uimsbf(88+selectorLength*8+numOfComponentRef*8, textLength).toString(),
+	}
+}
+
+/*
 Video Decode Control Descriptor
 Basic Local Event Descriptor
 Reference Descriptor

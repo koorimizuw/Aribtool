@@ -8,15 +8,21 @@ type TableIdRange struct {
 }
 
 var TableIdMap = map[string]TableIdRange{
-	EventSection: {0x4E, 0x6F},
+	CurrentEventSection:  {0x4E, 0x4E},
+	ScheduleEventSection: {0x50, 0x6F},
+	// ...
 }
 
 const (
-	EventSection    = "EventSection"
-	EventSectionEx1 = "EventSectionEx1"
-	EventSectionEx2 = "EventSectionEx2"
+	EventSection         = "EventSection"
+	CurrentEventSection  = "CurrentEventSection"
+	ScheduleEventSection = "ScheduleEventSection"
 )
 
-func ParseEventSection(sectionList ...[]byte) []table.EventSection {
-	return table.ParseEventSection(sectionList...)
+func ParseEventSection(sectionList ...[]byte) []table.Event {
+	var events []table.Event
+	for _, v := range table.ParseEventSection(sectionList...) {
+		events = append(events, v.Event...)
+	}
+	return events
 }

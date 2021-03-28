@@ -5,7 +5,7 @@ type TsHeader struct {
 	TransportError             bool
 	PayloadUnitStart           bool
 	TransportPriority          byte
-	PID                        byte
+	PID                        int
 	TransportScramblingControl byte
 	AdaptationFieldControl     byte
 	ContinuityCounter          int
@@ -17,17 +17,18 @@ func ParseTsHeader(b []byte) TsHeader {
 		TransportError:             b[1]&0x80>>7 == 1,
 		PayloadUnitStart:           b[1]&0x40>>6 == 1,
 		TransportPriority:          b[1] & 0x20 >> 5,
-		PID:                        byte(int(b[2]) | (int(b[1])&0x1f)<<8),
+		PID:                        int(b[2]) | (int(b[1])&0x1f)<<8,
 		TransportScramblingControl: b[3] & 0xc0 >> 6,
 		AdaptationFieldControl:     b[3] & 0x30 >> 4,
 		ContinuityCounter:          int(b[3] & 0x0F),
 	}
 }
 
-var PidMap = map[string]byte{
-	EventSection:    0x12,
-	EventSectionEx1: 0x26,
-	EventSectionEx2: 0x27,
+var PidMap = map[string]int{
+	EventSection:         0x12,
+	CurrentEventSection:  0x12,
+	ScheduleEventSection: 0x12,
+	// ...
 }
 
 func (h *TsHeader) HasAdaptationField() bool {

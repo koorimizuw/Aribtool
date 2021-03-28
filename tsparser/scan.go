@@ -20,7 +20,9 @@ func Scan(path string, section string) [][]byte {
 
 	var sectionLength int = -1
 	var payload []byte
+	var tid byte
 	var pointer int
+
 	for scanner.Scan() {
 		var packet TsPacket = scanner.Bytes()
 		header := ParseTsHeader(packet)
@@ -34,6 +36,7 @@ func Scan(path string, section string) [][]byte {
 
 		payload = packet.getPayload(header.PayloadUnitStart)
 
+		// Append remaining data
 		if len(sectionBytes) > 0 {
 			if sectionLength >= len(payload) {
 				// No new start
@@ -59,6 +62,11 @@ func Scan(path string, section string) [][]byte {
 
 		pointer = packet.getPointerField(header.PayloadUnitStart)
 		payload = payload[pointer+1:]
+
+		tid = payload[0]
+		if tid < TableIdMap[section].Start || tid > TableIdMap[section].End {
+			continue
+		}
 
 		sectionLength = int(payload[2]) | int(payload[1]&0x0F)<<8 + 3
 		if sectionLength <= len(payload) {
