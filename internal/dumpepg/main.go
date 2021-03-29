@@ -2,6 +2,7 @@ package dumpepg
 
 import (
 	"aribtool/tsparser"
+	"aribtool/tsparser/table"
 )
 
 type EventData struct {
@@ -45,11 +46,21 @@ func DumpEpg(path string) {
 
 		if len(eventMap[v.EventId].EventDetailExt) == 0 && len(v.Descriptor.ExtendedEventDescriptor) > 0 {
 			var extendInfo string
+			var lastDesc string
+			desc := make(map[string]*[]byte)
 			for _, ext := range v.Descriptor.ExtendedEventDescriptor {
-				extendInfo += ext.EventItem[0].ItemDescriptionChar
-				extendInfo += "\n"
-				extendInfo += ext.EventItem[0].ItemChar
-				extendInfo += "\n\n"
+				if ext.EventItem[0].ItemDescriptionLength != 0 {
+					desc[ext.EventItem[0].ItemDescriptionChar] = &ext.EventItem[0].ItemChar
+					lastDesc = ext.EventItem[0].ItemDescriptionChar
+				} else {
+					tmp := append(*desc[lastDesc], ext.EventItem[0].ItemChar...)
+					desc[lastDesc] = &tmp
+				}
+			}
+
+			for k, v := range desc {
+				extendInfo += k + "\n"
+				extendInfo += table.Mnemonic(*v).ToString() + "\n\n"
 			}
 			eventMap[v.EventId].EventDetailExt = extendInfo
 		}

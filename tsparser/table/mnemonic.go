@@ -6,10 +6,10 @@ import (
 	"github.com/koorimizuw/B24Decoder/b24decoder"
 )
 
-type mnemonic []byte
+type Mnemonic []byte
 
-func (s Section) uimsbf(index, length int) mnemonic {
-	var m mnemonic
+func (s Section) uimsbf(index, length int) Mnemonic {
+	var m Mnemonic
 	for length > 0 {
 		start := index / 8
 		pos := index % 8
@@ -26,8 +26,8 @@ func (s Section) uimsbf(index, length int) mnemonic {
 }
 
 // 処理はuimsbfと一緒？
-func (s Section) bslbf(index, length int) mnemonic {
-	var m mnemonic
+func (s Section) bslbf(index, length int) Mnemonic {
+	var m Mnemonic
 	for length > 0 {
 		start := index / 8
 		pos := index % 8
@@ -43,15 +43,15 @@ func (s Section) bslbf(index, length int) mnemonic {
 	return m
 }
 
-func (m mnemonic) toByte() byte {
+func (m Mnemonic) toByte() byte {
 	return m[0]
 }
 
-func (m mnemonic) toBool() bool {
+func (m Mnemonic) toBool() bool {
 	return m[0] == 1
 }
 
-func (m mnemonic) toNumber() int {
+func (m Mnemonic) toNumber() int {
 	num := 0
 	for i, v := range m {
 		num += int(v) << ((len(m) - i - 1) * 8)
@@ -59,11 +59,11 @@ func (m mnemonic) toNumber() int {
 	return num
 }
 
-func (m mnemonic) toString() string {
+func (m Mnemonic) ToString() string {
 	return b24decoder.Decode(m)
 }
 
-func (m mnemonic) toTime() time.Time {
+func (m Mnemonic) toTime() time.Time {
 	if len(m) < 5 {
 		panic("Too few bytes")
 	}
@@ -72,14 +72,14 @@ func (m mnemonic) toTime() time.Time {
 	return t.Add(bcd(m[2], m[3], m[4]))
 }
 
-func (m mnemonic) toDuration() int {
+func (m Mnemonic) toDuration() int {
 	if len(m) < 3 {
 		panic("Too few bytes")
 	}
 	return int(bcd(m[0], m[1], m[2]).Minutes())
 }
 
-func (m mnemonic) toLanguageCode() string {
+func (m Mnemonic) toLanguageCode() string {
 	if len(m) < 3 {
 		panic("Too few bytes")
 	}

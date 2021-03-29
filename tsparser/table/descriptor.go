@@ -63,9 +63,9 @@ func parseShortEventDescriptor(s Section) ShortEventDescriptor {
 		DescriptorLength:   s.uimsbf(8, 8).toNumber(),
 		ISO639LanguageCode: s.bslbf(16, 24).toLanguageCode(),
 		EventNameLength:    eventNameLength,
-		EventNameChar:      s.uimsbf(48, eventNameLength*8).toString(),
+		EventNameChar:      s.uimsbf(48, eventNameLength*8).ToString(),
 		TextLength:         textLength,
-		TextChar:           s.uimsbf(56+eventNameLength*8, textLength*8).toString(),
+		TextChar:           s.uimsbf(56+eventNameLength*8, textLength*8).ToString(),
 	}
 }
 
@@ -86,7 +86,7 @@ type EventItem struct {
 	ItemDescriptionLength int
 	ItemDescriptionChar   string
 	ItemLength            int
-	ItemChar              string
+	ItemChar              []byte //string
 }
 
 func parseExtendedEventDescriptor(s Section) ExtendedEventDescriptor {
@@ -101,7 +101,7 @@ func parseExtendedEventDescriptor(s Section) ExtendedEventDescriptor {
 		LengthOfItems:        lengthOfItems,
 		EventItem:            parseEventItem(s[7 : 7+lengthOfItems]),
 		TextLength:           textLength,
-		TextChar:             s.uimsbf(64+lengthOfItems*8, textLength*8).toString(),
+		TextChar:             s.uimsbf(64+lengthOfItems*8, textLength*8).ToString(),
 	}
 }
 
@@ -112,9 +112,9 @@ func parseEventItem(s Section) []EventItem {
 		itemLength := s.uimsbf(8+itemDescriptionLength*8, 8).toNumber()
 		tmp = append(tmp, EventItem{
 			ItemDescriptionLength: itemDescriptionLength,
-			ItemDescriptionChar:   s.uimsbf(8, itemDescriptionLength*8).toString(),
+			ItemDescriptionChar:   s.uimsbf(8, itemDescriptionLength*8).ToString(),
 			ItemLength:            itemLength,
-			ItemChar:              s.uimsbf(16+itemDescriptionLength*8, itemLength*8).toString(),
+			ItemChar:              s.uimsbf(16+itemDescriptionLength*8, itemLength*8),
 		})
 		s = s[itemDescriptionLength+itemLength+2:]
 	}
@@ -169,7 +169,7 @@ func parseDataContentDescriptor(s Section) DataContentDescriptor {
 		ComponentRef:       s.uimsbf(56+selectorLength*8, numOfComponentRef*8),
 		ISO639LanguageCode: s.bslbf(56+selectorLength*8+numOfComponentRef*8, 24).toLanguageCode(),
 		TextLength:         textLength,
-		TextChar:           s.uimsbf(88+selectorLength*8+numOfComponentRef*8, textLength).toString(),
+		TextChar:           s.uimsbf(88+selectorLength*8+numOfComponentRef*8, textLength).ToString(),
 	}
 }
 
