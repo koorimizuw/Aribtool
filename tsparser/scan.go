@@ -8,7 +8,7 @@ import (
 
 type TsPacket []byte
 
-func Scan(path string, pid int, tidRange TableIdRange) [][]byte {
+func Scan(path string, pid int, tidRange TableIdRange, maxCount int) [][]byte {
 	fp, _ := os.Open(path)
 	defer fp.Close()
 
@@ -24,6 +24,10 @@ func Scan(path string, pid int, tidRange TableIdRange) [][]byte {
 	var pointer int
 
 	for scanner.Scan() {
+		if len(sectionBytesList) > maxCount {
+			break
+		}
+
 		var packet TsPacket = scanner.Bytes()
 		header := ParseTsHeader(packet)
 

@@ -6,23 +6,30 @@ import (
 )
 
 type EventData struct {
-	Onid           int    `json:"onid"`
-	Tsid           int    `json:"tsid"`
-	Sid            int    `json:"sid"`
-	Eid            int    `json:"eid"`
-	StartTime      string `json:"start_time"`
-	Duration       int    `json:"duration"`
-	EventName      string `json:"event_name"`
-	EventDetail    string `json:"event_detail"`
-	EventDetailExt string `json:"event_detail_ext"`
-	Genre          int    `json:"ganre"`
+	Onid           int          `json:"onid"`
+	Tsid           int          `json:"tsid"`
+	Sid            int          `json:"sid"`
+	Eid            int          `json:"eid"`
+	StartTime      string       `json:"start_time"`
+	Duration       int          `json:"duration"`
+	EventName      string       `json:"event_name"`
+	EventDetail    string       `json:"event_detail"`
+	EventDetailExt string       `json:"event_detail_ext"`
+	Genre          []EventGenre `json:"genre"`
+	//VideoComponentType string `json:"video_component_type"`
+	//AudioComponentType string `json:"audio_component_type"`
+}
+
+type EventGenre struct {
+	Nibble1 string `json:"nibble1"`
+	Nibble2 string `json:"nibble2"`
 }
 
 func DumpEpg(path string) {
 	eventPid := tsparser.PidMap[tsparser.ScheduleEventSection]
 	eventTidRange := tsparser.TableIdMap[tsparser.ScheduleEventSection]
 
-	eventSectionList := tsparser.Scan(path, eventPid, eventTidRange)
+	eventSectionList := tsparser.Scan(path, eventPid, eventTidRange, 100)
 	events := tsparser.ParseEventSection(eventSectionList...)
 
 	var eventData []EventData
@@ -38,6 +45,12 @@ func DumpEpg(path string) {
 				Duration:  v.Duration,
 			}
 		}
+
+		/* // VideoComponentType
+		if len(eventMap[v.EventId].VideoComponentType) == 0 && len(v.Descriptor.ComponentDescriptor) > 0 {
+			eventMap[v.EventId].VideoComponentType = v.Descriptor.ComponentDescriptor[0].GetString()
+		}
+		*/
 
 		if len(eventMap[v.EventId].EventName) == 0 && len(v.Descriptor.ShortEventDescriptor) > 0 {
 			eventMap[v.EventId].EventName = v.Descriptor.ShortEventDescriptor[0].EventNameChar
@@ -63,6 +76,16 @@ func DumpEpg(path string) {
 				extendInfo += table.Mnemonic(*v).ToString() + "\n\n"
 			}
 			eventMap[v.EventId].EventDetailExt = extendInfo
+		}
+
+		if len(eventMap[v.EventId].Genre) == 0 && len(v.Descriptor.ContentDescriptor) > 0 {
+			for _, w := range v.Descriptor.ContentDescriptor[0].ContentNibble {
+				nibble1, nibble2 := w.ToString()
+				eventMap[v.EventId].Genre = append(eventMap[v.EventId].Genre, EventGenre{
+					Nibble1: nibble1,
+					Nibble2: nibble2,
+				})
+			}
 		}
 	}
 
