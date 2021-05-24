@@ -1,6 +1,8 @@
 package tsparser
 
-import "aribtool/tsparser/table"
+import (
+	"aribtool/tsparser/table"
+)
 
 type TableIdRange struct {
 	Start byte
@@ -18,6 +20,23 @@ const (
 	CurrentEventSection  = "CurrentEventSection"
 	ScheduleEventSection = "ScheduleEventSection"
 )
+
+func ParseCurrentEventSection(skip int, sectionList ...[]byte) []table.Event {
+	var events []table.Event
+	skipCount := 0
+	for _, v := range table.ParseEventSection(sectionList...) {
+		if skipCount > skip && v.SectionNumber == 0 {
+			for _, e := range v.Event {
+				e.OriginalNetworkId = v.OriginalNetworkId
+				e.TransportStreamId = v.TransportStreamId
+				e.ServiceId = v.ServiceId
+				events = append(events, e)
+			}
+		}
+		skipCount += 1
+	}
+	return events
+}
 
 func ParseEventSection(sectionList ...[]byte) []table.Event {
 	var events []table.Event

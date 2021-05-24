@@ -2,6 +2,7 @@ package main
 
 import (
 	"aribtool/internal/dumpepg"
+	"aribtool/internal/epginfo"
 	"flag"
 	"fmt"
 )
@@ -25,6 +26,11 @@ func main() {
 			printDefault()
 		}
 		dumpepg.DumpEpg(args[1])
+	case "epginfo":
+		if len(args) == 1 {
+			printDefault()
+		}
+		epginfo.EpgInfo(args[1])
 	default:
 		printDefault()
 	}

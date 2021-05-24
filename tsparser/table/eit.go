@@ -1,6 +1,8 @@
 package table
 
-import "time"
+import (
+	"time"
+)
 
 /*
 event_information_section(){
