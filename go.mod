@@ -1,4 +1,4 @@
-module aribtool
+module github.com/koorimizuw/aribtool
 
 go 1.16
 

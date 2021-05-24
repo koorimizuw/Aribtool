@@ -1,8 +1,8 @@
 package dumpepg
 
 import (
-	"aribtool/tsparser"
-	"aribtool/tsparser/table"
+	"github.com/koorimizuw/aribtool/tsparser"
+	"github.com/koorimizuw/aribtool/tsparser/table"
 )
 
 type EventData struct {

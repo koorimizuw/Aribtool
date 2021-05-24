@@ -1,7 +1,7 @@
 package tsparser
 
 import (
-	"aribtool/tsparser/table"
+	"github.com/koorimizuw/aribtool/tsparser/table"
 )
 
 type TableIdRange struct {

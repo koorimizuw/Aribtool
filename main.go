@@ -1,10 +1,11 @@
 package main
 
 import (
-	"aribtool/internal/dumpepg"
-	"aribtool/internal/epginfo"
 	"flag"
 	"fmt"
+
+	"github.com/koorimizuw/aribtool/internal/dumpepg"
+	"github.com/koorimizuw/aribtool/internal/epginfo"
 )
 
 func main() {

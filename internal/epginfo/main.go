@@ -1,7 +1,7 @@
 package epginfo
 
 import (
-	"aribtool/tsparser"
+	"github.com/koorimizuw/aribtool/tsparser"
 )
 
 type EventData struct {
