@@ -10,26 +10,28 @@ type TableIdRange struct {
 }
 
 var TableIdMap = map[string]TableIdRange{
-	CurrentEventSection:  {0x4E, 0x4E},
-	ScheduleEventSection: {0x50, 0x6F},
+	ProgramAssociationSection: {0x0, 0x0},
+	CurrentEventSection:       {0x4E, 0x4E},
+	ScheduleEventSection:      {0x50, 0x6F},
 	// ...
 }
 
 const (
-	EventSection         = "EventSection"
-	CurrentEventSection  = "CurrentEventSection"
-	ScheduleEventSection = "ScheduleEventSection"
+	ProgramAssociationSection = "ProgramAssociationSection"
+	EventSection              = "EventSection"
+	CurrentEventSection       = "CurrentEventSection"
+	ScheduleEventSection      = "ScheduleEventSection"
 )
 
-func ParseCurrentEventSection(skip int, sectionList ...[]byte) []table.Event {
+func ParseCurrentEventSection(sid int, skip int, sectionList ...[]byte) []table.Event {
 	var events []table.Event
 	skipCount := 0
 	for _, v := range table.ParseEventSection(sectionList...) {
-		if skipCount > skip && v.SectionNumber == 0 {
+		if skipCount > skip && v.SectionNumber == 0 && v.ServiceId == sid {
 			for _, e := range v.Event {
 				e.OriginalNetworkId = v.OriginalNetworkId
 				e.TransportStreamId = v.TransportStreamId
-				e.ServiceId = v.ServiceId
+				e.ServiceId = sid
 				events = append(events, e)
 			}
 		}
@@ -49,4 +51,8 @@ func ParseEventSection(sectionList ...[]byte) []table.Event {
 		}
 	}
 	return events
+}
+
+func GetSid(section []byte) (eid int) {
+	return table.GetSid(section)
 }

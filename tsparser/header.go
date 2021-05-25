@@ -25,9 +25,10 @@ func ParseTsHeader(b []byte) TsHeader {
 }
 
 var PidMap = map[string]int{
-	EventSection:         0x12,
-	CurrentEventSection:  0x12,
-	ScheduleEventSection: 0x12,
+	ProgramAssociationSection: 0x0,
+	EventSection:              0x12,
+	CurrentEventSection:       0x12,
+	ScheduleEventSection:      0x12,
 	// ...
 }
 

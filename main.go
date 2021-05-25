@@ -31,7 +31,8 @@ func main() {
 		if len(args) == 1 {
 			printDefault()
 		}
-		epginfo.EpgInfo(args[1])
+		e := epginfo.EpgInfo(args[1], 200, 140)
+		fmt.Printf("%#v", e)
 	default:
 		printDefault()
 	}

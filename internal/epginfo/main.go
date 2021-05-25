@@ -14,12 +14,17 @@ type EventData struct {
 	EventName string `json:"event_name"`
 }
 
-func EpgInfo(path string) (eventData *EventData) {
+func EpgInfo(path string, read int, skip int) (eventData *EventData) {
+	patPid := tsparser.PidMap[tsparser.ProgramAssociationSection]
+	patTidRange := tsparser.TableIdMap[tsparser.ProgramAssociationSection]
+	patSectionList := tsparser.Scan(path, patPid, patTidRange, 100)
+	sid := tsparser.GetSid(patSectionList[0])
+
 	eventPid := tsparser.PidMap[tsparser.CurrentEventSection]
 	eventTidRange := tsparser.TableIdMap[tsparser.CurrentEventSection]
 
-	eventSectionList := tsparser.Scan(path, eventPid, eventTidRange, 100)
-	events := tsparser.ParseCurrentEventSection(81, eventSectionList...)
+	eventSectionList := tsparser.Scan(path, eventPid, eventTidRange, read)
+	events := tsparser.ParseCurrentEventSection(sid, skip, eventSectionList...)
 	event := events[len(events)-1]
 
 	return &EventData{
