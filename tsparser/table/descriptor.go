@@ -290,6 +290,7 @@ func parseDataContentDescriptor(s Section) DataContentDescriptor {
 	selectorLength := s.uimsbf(40, 8).toNumber()
 	numOfComponentRef := s.uimsbf(48+selectorLength*8, 8).toNumber()
 	textLength := s.uimsbf(80+selectorLength*8+numOfComponentRef*8, 8).toNumber()
+
 	return DataContentDescriptor{
 		DescriptorTag:      s.uimsbf(0, 8).toByte(),
 		DescriptorLength:   s.uimsbf(8, 8).toNumber(),
@@ -301,7 +302,7 @@ func parseDataContentDescriptor(s Section) DataContentDescriptor {
 		ComponentRef:       s.uimsbf(56+selectorLength*8, numOfComponentRef*8),
 		ISO639LanguageCode: s.bslbf(56+selectorLength*8+numOfComponentRef*8, 24).toLanguageCode(),
 		TextLength:         textLength,
-		TextChar:           s.uimsbf(88+selectorLength*8+numOfComponentRef*8, textLength).ToString(),
+		TextChar:           s.uimsbf(88+selectorLength*8+numOfComponentRef*8, textLength*8).ToString(),
 	}
 }
 
